@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 NAME HERE <EMAIL ADDRESS>
+Copyright © 2021 Stefano Pirrello spirrello@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -27,9 +28,26 @@ var eipCmd = &cobra.Command{
 	Short: "perform a scan against AWS Elastic IPs",
 	Long:  `perform a scan against AWS Elastic IPs.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// fmt.Println("eip called")
-		awsConfig, _ := cmd.Flags().GetString("awsConfig")
-		loadAWSConfig(awsConfig)
+
+		var awsConfig, tempProfiles string
+		var profiles []string
+
+		tempProfiles, _ = cmd.Flags().GetString("profiles")
+
+		profiles = strings.Split(tempProfiles, ",")
+
+		if profiles[0] == "" {
+			awsConfig, _ = cmd.Flags().GetString("awsConfig")
+			profiles = loadAWSConfigProfiles(awsConfig)
+		}
+
+		fmt.Printf("profiles: %s", profiles)
+
+		builder := getScanBuilder("eip")
+		director := newDirector(builder)
+		e := director.eipBuilderScan(profiles)
+
+		fmt.Printf("targets: %s\n", e.scanTargets)
 
 	},
 }
@@ -45,10 +63,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// eipCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-// loadAWSConfig loads the config file to parse which accounts to search
-func loadAWSConfig(awsConfig string) {
-	fmt.Printf("our awsConfig: %s\n", awsConfig)
+	eipCmd.Flags().String("profiles", "", "which account to scan")
 }
