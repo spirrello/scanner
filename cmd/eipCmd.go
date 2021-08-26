@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -29,25 +28,22 @@ var eipCmd = &cobra.Command{
 	Long:  `perform a scan against AWS Elastic IPs.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var awsConfig, tempProfiles string
+		var awsConfig, conf, ports, tempProfiles string
 		var profiles []string
 
 		tempProfiles, _ = cmd.Flags().GetString("profiles")
-
 		profiles = strings.Split(tempProfiles, ",")
-
 		if profiles[0] == "" {
 			awsConfig, _ = cmd.Flags().GetString("awsConfig")
 			profiles = loadAWSConfigProfiles(awsConfig)
 		}
 
-		fmt.Printf("profiles: %s", profiles)
+		conf, _ = cmd.Flags().GetString("conf")
+		ports, _ = cmd.Flags().GetString("ports")
 
 		builder := getScanBuilder("eip")
 		director := newDirector(builder)
-		e := director.eipBuilderScan(profiles)
-
-		fmt.Printf("targets: %s\n", e.scanTargets)
+		director.eipBuilderScan(profiles, conf, ports)
 
 	},
 }
@@ -64,4 +60,9 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	eipCmd.Flags().String("profiles", "", "which account to scan")
+
+	eipCmd.Flags().String("conf", "nmap --open -sT -Pn -p", "nmap scan")
+
+	eipCmd.Flags().String("ports", "22,80,443,9735", "ports to scan")
+
 }

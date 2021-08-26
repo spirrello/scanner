@@ -2,6 +2,6 @@ package cmd
 
 type eipScan struct {
 	scanTargets []ProfileAddresses
-	ports       []string
+	ports       string
 	profiles    []string
 }

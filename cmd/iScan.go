@@ -2,10 +2,11 @@ package cmd
 
 type iScanBuilder interface {
 	setTargets()
-	setPorts()
+	setPorts(ports string)
 	setProfiles(profiles []string)
 	setRegions()
 	getEipScan() eipScan
+	runScan(conf string)
 }
 
 func getScanBuilder(scanType string) iScanBuilder {

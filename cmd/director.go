@@ -10,11 +10,12 @@ func newDirector(d iScanBuilder) *director {
 	}
 }
 
-func (d *director) eipBuilderScan(profiles []string) eipScan {
+func (d *director) eipBuilderScan(profiles []string, conf, ports string) eipScan {
 	d.builder.setProfiles(profiles)
 	d.builder.setRegions()
 	d.builder.setTargets()
-	d.builder.setPorts()
+	d.builder.setPorts(ports)
+	d.builder.runScan(conf)
 
 	return d.builder.getEipScan()
 }
